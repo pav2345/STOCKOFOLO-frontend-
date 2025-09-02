@@ -15,12 +15,15 @@ const Signup = ({ setUser }) => {
     const password = e.target.password.value;
 
     try {
-      const response = await fetch("http://localhost:5000/api/v1/user/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ firstName, lastName, email, password }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/v1/user/signup`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ firstName, lastName, email, password }),
+        }
+      );
 
       const data = await response.json();
 
@@ -53,21 +56,50 @@ const Signup = ({ setUser }) => {
           Join <span className="text-green-400">StockFolo</span>
         </h1>
 
-        <input type="text" name="firstName" placeholder="First Name" className="input-field" />
-        <input type="text" name="lastName" placeholder="Last Name" className="input-field" />
-        <input type="email" name="email" placeholder="Email" className="input-field" />
-        <input type="password" name="password" placeholder="Password" className="input-field" />
+        <input
+          type="text"
+          name="firstName"
+          placeholder="First Name"
+          className="input-field"
+        />
+        <input
+          type="text"
+          name="lastName"
+          placeholder="Last Name"
+          className="input-field"
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          className="input-field"
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          className="input-field"
+        />
 
-        <button type="submit" className="btn-gradient">Sign Up</button>
+        <button type="submit" className="btn-gradient">
+          Sign Up
+        </button>
 
         {message && (
-          <p className={`text-center mt-2 ${messageType === "success" ? "text-green-400" : "text-red-500"}`}>
+          <p
+            className={`text-center mt-2 ${
+              messageType === "success" ? "text-green-400" : "text-red-500"
+            }`}
+          >
             {message}
           </p>
         )}
 
         <p className="text-gray-400 text-center mt-4 text-sm">
-          Already have an account? <Link to="/login" className="text-green-400 hover:underline">Log In</Link>
+          Already have an account?{" "}
+          <Link to="/login" className="text-green-400 hover:underline">
+            Log In
+          </Link>
         </p>
       </form>
 

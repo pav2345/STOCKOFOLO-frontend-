@@ -35,11 +35,12 @@ export default function News() {
     setNewsData([]);
 
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/v1/news/${symbol.toUpperCase()}`,
-        { credentials: "include" }
-      );
-      const data = await res.json();
+  const res = await fetch(
+    `${process.env.REACT_APP_API_URL}/api/v1/news/${symbol.toUpperCase()}`,
+    { credentials: "include" }
+  );
+  const data = await res.json();
+
 
       if (!data.success) {
         setError(data.message || "Failed to fetch news");

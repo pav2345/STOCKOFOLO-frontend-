@@ -8,7 +8,7 @@ const Watchlist = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const API_URL = "http://localhost:5000/api/v1/watchlist";
+  const API_URL = `${process.env.REACT_APP_API_URL}/api/v1/watchlist`;
   const token = localStorage.getItem("token");
 
   const fetchWatchlist = async () => {
@@ -50,7 +50,7 @@ const Watchlist = () => {
         setSymbol("");
         setName("");
       } else {
-        setError(data.message);
+        setError(data.message || "Failed to add stock");
       }
     } catch (err) {
       console.error(err);
@@ -71,7 +71,7 @@ const Watchlist = () => {
       if (res.ok) {
         setWatchlist((prev) => prev.filter((item) => item._id !== id));
       } else {
-        setError(data.message);
+        setError(data.message || "Failed to remove stock");
       }
     } catch (err) {
       console.error(err);
@@ -83,7 +83,6 @@ const Watchlist = () => {
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-gray-900 via-black to-gray-800 p-4 sm:p-8 flex flex-col items-center text-white overflow-x-hidden">
-
       {/* Background blobs */}
       <div className="absolute top-0 left-[-80px] w-96 h-96 bg-blue-700 rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-pulse"></div>
       <div className="absolute bottom-0 right-[-80px] w-96 h-96 bg-purple-700 rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-pulse animation-delay-2000"></div>
@@ -135,7 +134,7 @@ const Watchlist = () => {
             className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-800 bg-opacity-40 p-4 rounded-2xl shadow-lg backdrop-blur-md hover:bg-gray-700 hover:scale-[1.02] transition-all w-full"
           >
             <div className="mb-2 sm:mb-0">
-              <span className="font-bold">{stock.stockSymbol}</span> - {stock.stockName}
+              <span className="font-bold">{stock.symbol}</span> - {stock.name}
             </div>
             <button
               onClick={() => handleRemoveStock(stock._id)}
