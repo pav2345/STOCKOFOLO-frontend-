@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import NewsImage from "../assets/news.png"; // Fixed import
+import NewsImage from "../assets/news.png"; 
 import {
   PieChart,
   Pie,
@@ -14,9 +14,8 @@ import {
   YAxis,
 } from "recharts";
 import { motion } from "framer-motion";
-import api from "../api"; // <- Import axios instance
+import axios from "axios"; // Use axios directly
 
-// Optional floating SVG for background
 const NewsSVG = () => (
   <svg className="w-40 h-40 text-indigo-400 opacity-10" fill="currentColor" viewBox="0 0 24 24">
     <path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>
@@ -36,7 +35,20 @@ export default function News() {
     setNewsData([]);
 
     try {
-      const res = await api.get(`/api/v1/news/${symbol.toUpperCase()}`); // Use relative path via api.js
+      // Get token from localStorage (set on login)
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get(
+        `https://stockfolo.onrender.com/api/v1/news/${symbol.toUpperCase()}`,
+        {
+          headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}` // send token for auth
+          },
+          withCredentials: true,
+        }
+      );
+
       const data = res.data;
 
       if (!data.success) {
@@ -82,7 +94,6 @@ export default function News() {
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 text-white overflow-x-hidden">
-      {/* Floating Background SVGs */}
       <div className="absolute top-10 left-[-60px] animate-pulse opacity-20">
         <NewsSVG />
       </div>
@@ -91,7 +102,6 @@ export default function News() {
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
-        {/* Search Bar */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -113,11 +123,9 @@ export default function News() {
           </button>
         </motion.div>
 
-        {/* Loading & Errors */}
         {loading && <p className="text-center text-gray-400">Fetching news...</p>}
         {error && <p className="text-center text-red-400">{error}</p>}
 
-        {/* Dashboard Charts */}
         {newsData.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -125,7 +133,6 @@ export default function News() {
             transition={{ duration: 0.8 }}
             className="grid md:grid-cols-2 gap-8 mt-6"
           >
-            {/* Sentiment Pie */}
             <div className="bg-gray-800 p-5 rounded-xl shadow-lg">
               <h2 className="text-lg font-semibold text-center mb-4">Sentiment Distribution</h2>
               <ResponsiveContainer width="100%" height={300}>
@@ -149,7 +156,6 @@ export default function News() {
               </ResponsiveContainer>
             </div>
 
-            {/* Trend Line */}
             <div className="bg-gray-800 p-5 rounded-xl shadow-lg">
               <h2 className="text-lg font-semibold text-center mb-4">News Volume Trend</h2>
               <ResponsiveContainer width="100%" height={300}>
@@ -166,7 +172,6 @@ export default function News() {
           </motion.div>
         )}
 
-        {/* News List */}
         <div className="grid md:grid-cols-2 gap-6 mt-6">
           {newsData.map((article, index) => (
             <motion.div
@@ -177,9 +182,7 @@ export default function News() {
               className="bg-gray-800 rounded-2xl shadow-lg p-5 hover:shadow-2xl hover:scale-[1.02] transition-all"
             >
               <div className="flex justify-between items-center mb-2">
-                <span
-                  className={`text-xs px-2 py-1 rounded-full ${sentimentColor(article.sentiment)}`}
-                >
+                <span className={`text-xs px-2 py-1 rounded-full ${sentimentColor(article.sentiment)}`}>
                   {article.sentiment.toUpperCase()}
                 </span>
                 <span className="text-xs text-gray-400">
@@ -200,7 +203,6 @@ export default function News() {
           ))}
         </div>
 
-        {/* Empty State */}
         {!loading && !error && newsData.length === 0 && (
           <p className="text-center text-gray-400 mt-10">🔍 Enter a stock symbol to see latest news</p>
         )}

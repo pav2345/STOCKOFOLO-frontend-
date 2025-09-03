@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import api from "../api"; // <- Import axios instance
+import axios from "axios"; // Use axios directly
 
 const Signup = ({ setUser }) => {
   const navigate = useNavigate();
@@ -16,7 +16,14 @@ const Signup = ({ setUser }) => {
     const password = e.target.password.value;
 
     try {
-      const response = await api.post("/api/v1/user/signup", { firstName, lastName, email, password });
+      const response = await axios.post(
+        "https://stockfolo.onrender.com/api/v1/user/signup", // Full backend URL
+        { firstName, lastName, email, password },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true, // include cookies if needed
+        }
+      );
 
       setMessageType("success");
       setMessage("Signup successful! Redirecting...");
@@ -30,7 +37,7 @@ const Signup = ({ setUser }) => {
       setMessageType("error");
 
       // Show backend error message if available
-      if (err.response && err.response.data && err.response.data.message) {
+      if (err.response?.data?.message) {
         setMessage(err.response.data.message);
       } else {
         setMessage("Server error. Please try again.");

@@ -1,14 +1,16 @@
-// src/api.js
 import axios from "axios";
 
-const API_URL = process.env.REACT_APP_API_URL; // Production/Development URL
-
 const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true, // include cookies for login sessions
+  baseURL: "https://stockfolo.onrender.com/api/v1",
+});
+
+// Automatically add token to every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export default api;

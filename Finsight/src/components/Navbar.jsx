@@ -4,11 +4,11 @@ import axios from "axios";
 
 const Navbar = ({ user, setUser }) => {
   const navigate = useNavigate();
-  const API_URL = process.env.REACT_APP_API_URL; // Environment variable for backend URL
+  const API_URL = "https://stockfolo.onrender.com"; // Directly use deployed backend URL
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${API_URL}/api/v1/user/logout`); // Uses environment variable
+      await axios.post(`${API_URL}/api/v1/user/logout`);
       setUser(null);
       navigate("/");
     } catch (err) {

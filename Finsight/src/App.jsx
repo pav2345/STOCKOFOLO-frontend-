@@ -7,10 +7,11 @@ import Navbar from "./Components/Navbar";
 // Pages
 import LandingPage from "./pages/Landing";
 import Stock from "./pages/Stock";
-import News from "./pages/News";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup";
 import Watchlist from "./pages/Watchlist";
+import Signup from './pages/Signup.jsx';
+import News from './pages/News.jsx';
+
 
 function App() {
   // User state: null = not logged in
@@ -19,7 +20,7 @@ function App() {
   return (
     <Router>
       <div className="bg-black min-h-screen text-white">
-        {/* Navbar always visible */}
+        {/* Navbar is always visible */}
         <Navbar user={user} setUser={setUser} />
 
         {/* Routes */}
