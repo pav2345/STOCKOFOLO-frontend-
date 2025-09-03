@@ -4,10 +4,11 @@ import axios from "axios";
 
 const Navbar = ({ user, setUser }) => {
   const navigate = useNavigate();
+  const API_URL = process.env.REACT_APP_API_URL; // Environment variable for backend URL
 
   const handleLogout = async () => {
     try {
-     await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/user/logout`);
+      await axios.post(`${API_URL}/api/v1/user/logout`); // Uses environment variable
       setUser(null);
       navigate("/");
     } catch (err) {

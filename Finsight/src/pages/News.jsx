@@ -14,6 +14,7 @@ import {
   YAxis,
 } from "recharts";
 import { motion } from "framer-motion";
+import api from "../api"; // <- Import axios instance
 
 // Optional floating SVG for background
 const NewsSVG = () => (
@@ -35,12 +36,8 @@ export default function News() {
     setNewsData([]);
 
     try {
-  const res = await fetch(
-    `${process.env.REACT_APP_API_URL}/api/v1/news/${symbol.toUpperCase()}`,
-    { credentials: "include" }
-  );
-  const data = await res.json();
-
+      const res = await api.get(`/api/v1/news/${symbol.toUpperCase()}`); // Use relative path via api.js
+      const data = res.data;
 
       if (!data.success) {
         setError(data.message || "Failed to fetch news");
@@ -49,7 +46,7 @@ export default function News() {
       }
     } catch (err) {
       console.error(err);
-      setError(err.message || "Something went wrong. Try again.");
+      setError(err.response?.data?.message || err.message || "Something went wrong. Try again.");
     }
 
     setLoading(false);

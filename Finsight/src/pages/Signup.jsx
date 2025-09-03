@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import api from "../api"; // <- Import axios instance
 
 const Signup = ({ setUser }) => {
   const navigate = useNavigate();
@@ -15,34 +16,25 @@ const Signup = ({ setUser }) => {
     const password = e.target.password.value;
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/v1/user/signup`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ firstName, lastName, email, password }),
-        }
-      );
+      const response = await api.post("/api/v1/user/signup", { firstName, lastName, email, password });
 
-      const data = await response.json();
+      setMessageType("success");
+      setMessage("Signup successful! Redirecting...");
 
-      if (response.ok) {
-        setMessageType("success");
-        setMessage("Signup successful! Redirecting...");
+      // Update global user state
+      setUser({ firstName, lastName, email });
 
-        // Update global user state
-        setUser({ firstName, lastName, email });
-
-        setTimeout(() => navigate("/stock"), 1500);
-      } else {
-        setMessageType("error");
-        setMessage(data.message || "Signup failed");
-      }
+      setTimeout(() => navigate("/stock"), 1500);
     } catch (err) {
       console.error(err);
       setMessageType("error");
-      setMessage("Server error. Please try again.");
+
+      // Show backend error message if available
+      if (err.response && err.response.data && err.response.data.message) {
+        setMessage(err.response.data.message);
+      } else {
+        setMessage("Server error. Please try again.");
+      }
     }
   };
 
@@ -56,50 +48,22 @@ const Signup = ({ setUser }) => {
           Join <span className="text-green-400">StockFolo</span>
         </h1>
 
-        <input
-          type="text"
-          name="firstName"
-          placeholder="First Name"
-          className="input-field"
-        />
-        <input
-          type="text"
-          name="lastName"
-          placeholder="Last Name"
-          className="input-field"
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className="input-field"
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className="input-field"
-        />
+        <input type="text" name="firstName" placeholder="First Name" className="input-field" />
+        <input type="text" name="lastName" placeholder="Last Name" className="input-field" />
+        <input type="email" name="email" placeholder="Email" className="input-field" />
+        <input type="password" name="password" placeholder="Password" className="input-field" />
 
-        <button type="submit" className="btn-gradient">
-          Sign Up
-        </button>
+        <button type="submit" className="btn-gradient">Sign Up</button>
 
         {message && (
-          <p
-            className={`text-center mt-2 ${
-              messageType === "success" ? "text-green-400" : "text-red-500"
-            }`}
-          >
+          <p className={`text-center mt-2 ${messageType === "success" ? "text-green-400" : "text-red-500"}`}>
             {message}
           </p>
         )}
 
         <p className="text-gray-400 text-center mt-4 text-sm">
           Already have an account?{" "}
-          <Link to="/login" className="text-green-400 hover:underline">
-            Log In
-          </Link>
+          <Link to="/login" className="text-green-400 hover:underline">Log In</Link>
         </p>
       </form>
 
