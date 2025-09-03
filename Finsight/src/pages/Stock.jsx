@@ -12,24 +12,16 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import api from "../api"; // Use centralized API instance
 
-// Placeholder SVG components
 const FinanceSVG1 = () => (
-  <svg
-    className="w-32 h-32 sm:w-40 sm:h-40 text-blue-400 opacity-10"
-    fill="currentColor"
-    viewBox="0 0 24 24"
-  >
+  <svg className="w-32 h-32 sm:w-40 sm:h-40 text-blue-400 opacity-10" fill="currentColor" viewBox="0 0 24 24">
     <path d="M3 17h2v-6H3v6zm4 0h2v-10H7v10zm4 0h2v-4h-2v4zm4 0h2V7h-2v10zm4 0h2v-8h-2v8z" />
   </svg>
 );
 
 const FinanceSVG2 = () => (
-  <svg
-    className="w-24 h-24 sm:w-32 sm:h-32 text-purple-500 opacity-10"
-    fill="currentColor"
-    viewBox="0 0 24 24"
-  >
+  <svg className="w-24 h-24 sm:w-32 sm:h-32 text-purple-500 opacity-10" fill="currentColor" viewBox="0 0 24 24">
     <path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z" />
   </svg>
 );
@@ -41,25 +33,19 @@ export default function Stock() {
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
 
-  const STOCK_URL = `https://stockfolo.onrender.com/api/v1/stock`; // Can be replaced with env variable
   const COLORS = { up: "#22c55e", down: "#ef4444" };
 
   const handleSearch = async () => {
     if (!symbol) return;
     setLoading(true);
     try {
-      const stockRes = await fetch(`${STOCK_URL}/${symbol.toUpperCase()}`, {
-        credentials: "include",
-      });
-      const stockData = await stockRes.json();
-      setStock(stockData);
+      // Fetch stock info
+      const stockRes = await api.get(`/stock/${symbol.toUpperCase()}`);
+      setStock(stockRes.data);
 
-      const historyRes = await fetch(
-        `${STOCK_URL}/${symbol.toUpperCase()}/history`,
-        { credentials: "include" }
-      );
-      const historyData = await historyRes.json();
-      setHistory(historyData.history || []);
+      // Fetch history
+      const historyRes = await api.get(`/stock/${symbol.toUpperCase()}/history`);
+      setHistory(historyRes.data.history || []);
     } catch (err) {
       console.error("Error fetching stock:", err);
     } finally {
@@ -84,11 +70,8 @@ export default function Stock() {
   };
 
   const handleMouseMove = (state) => {
-    if (state && state.activeTooltipIndex != null) {
-      setActiveIndex(state.activeTooltipIndex);
-    } else {
-      setActiveIndex(null);
-    }
+    if (state && state.activeTooltipIndex != null) setActiveIndex(state.activeTooltipIndex);
+    else setActiveIndex(null);
   };
 
   const reversedHistory = history.slice().reverse();
@@ -103,7 +86,6 @@ export default function Stock() {
       <div className="absolute top-16 left-6 sm:left-12"><FinanceSVG1 /></div>
       <div className="absolute bottom-24 right-12 sm:right-20"><FinanceSVG2 /></div>
 
-      {/* Page Header */}
       <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300 mb-6 flex flex-col items-center gap-1">
         📈 Stock Explorer
         <span className="text-sm sm:text-lg text-gray-400">Analyze trends & prices</span>
@@ -112,7 +94,6 @@ export default function Stock() {
       <div className="flex flex-col md:flex-row items-start gap-6 w-full max-w-6xl">
         {/* Left Column */}
         <div className="flex-1 flex flex-col items-center w-full">
-          {/* Search Bar */}
           <div className="flex gap-2 sm:gap-3 mb-6 w-full max-w-xl">
             <input
               type="text"
@@ -145,7 +126,6 @@ export default function Stock() {
           {/* Charts */}
           {history.length > 0 && (
             <div className="w-full max-w-full space-y-6 mt-4 overflow-x-auto">
-              {/* Candlestick */}
               <div className="bg-gray-800 p-4 sm:p-5 rounded-2xl shadow-xl border border-gray-700 relative min-w-[350px] sm:min-w-[600px]">
                 <h3 className="text-lg sm:text-xl font-semibold text-teal-300 mb-2">Candlestick</h3>
                 <ResponsiveContainer width={reversedHistory.length * 30} height={250}>
@@ -166,7 +146,6 @@ export default function Stock() {
                 </ResponsiveContainer>
               </div>
 
-              {/* Line Chart */}
               <div className="bg-gray-800 p-4 sm:p-5 rounded-2xl shadow-xl border border-gray-700 relative min-w-[350px] sm:min-w-[600px]">
                 <h3 className="text-lg sm:text-xl font-semibold text-indigo-300 mb-2">Trend Lines</h3>
                 <ResponsiveContainer width="100%" height={250}>

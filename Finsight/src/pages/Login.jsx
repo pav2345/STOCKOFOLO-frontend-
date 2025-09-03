@@ -1,6 +1,7 @@
+// src/Login.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"; // Directly use axios
+import api from "../api"; // imported axios instance
 
 const Login = ({ setUser }) => {
   const navigate = useNavigate();
@@ -14,29 +15,20 @@ const Login = ({ setUser }) => {
     const password = e.target.password.value;
 
     try {
-      const response = await axios.post(
-        "https://stockfolo.onrender.com/api/v1/user/login", // Full backend URL
-        { email, password },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true, // include cookies
-        }
-      );
+      const response = await api.post("/user/login", { email, password });
+      
+      const token = response.data.token; // get JWT token from backend
+      localStorage.setItem("token", token); // store token
 
+      setUser({ email, token }); // keep your state
       setMessageType("success");
       setMessage("Login successful! Redirecting...");
 
-      setUser({ email });
       setTimeout(() => navigate("/stock"), 1500);
     } catch (err) {
       console.error(err);
       setMessageType("error");
-
-      if (err.response && err.response.data && err.response.data.message) {
-        setMessage(err.response.data.message);
-      } else {
-        setMessage("Server error. Please try again.");
-      }
+      setMessage(err.response?.data?.message || "Server error. Please try again.");
     }
   };
 

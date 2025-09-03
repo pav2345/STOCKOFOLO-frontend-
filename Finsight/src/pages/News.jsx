@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import NewsImage from "../assets/news.png"; 
+import NewsImage from "../assets/news.png";
 import {
   PieChart,
   Pie,
@@ -14,7 +14,7 @@ import {
   YAxis,
 } from "recharts";
 import { motion } from "framer-motion";
-import axios from "axios"; // Use axios directly
+import api from "../api"; // Use central API instance
 
 const NewsSVG = () => (
   <svg className="w-40 h-40 text-indigo-400 opacity-10" fill="currentColor" viewBox="0 0 24 24">
@@ -35,20 +35,7 @@ export default function News() {
     setNewsData([]);
 
     try {
-      // Get token from localStorage (set on login)
-      const token = localStorage.getItem("token");
-
-      const res = await axios.get(
-        `https://stockfolo.onrender.com/api/v1/news/${symbol.toUpperCase()}`,
-        {
-          headers: { 
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}` // send token for auth
-          },
-          withCredentials: true,
-        }
-      );
-
+      const res = await api.get(`/news/${symbol.toUpperCase()}`); // use api.js, token auto-attached
       const data = res.data;
 
       if (!data.success) {
@@ -91,6 +78,8 @@ export default function News() {
     });
     return Object.entries(grouped).map(([date, count]) => ({ date, count }));
   };
+
+  const sentimentData = getSentimentData(); // calculate once to avoid duplicate calls
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 text-white overflow-x-hidden">
@@ -138,7 +127,7 @@ export default function News() {
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
-                    data={getSentimentData()}
+                    data={sentimentData}
                     dataKey="value"
                     nameKey="name"
                     cx="50%"
@@ -146,7 +135,7 @@ export default function News() {
                     outerRadius={100}
                     label
                   >
-                    {getSentimentData().map((entry, index) => (
+                    {sentimentData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>

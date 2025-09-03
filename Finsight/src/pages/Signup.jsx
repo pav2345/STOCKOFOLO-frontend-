@@ -1,6 +1,7 @@
+// src/Signup.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"; // Use axios directly
+import api from "../api"; // use central API instance
 
 const Signup = ({ setUser }) => {
   const navigate = useNavigate();
@@ -16,32 +17,24 @@ const Signup = ({ setUser }) => {
     const password = e.target.password.value;
 
     try {
-      const response = await axios.post(
-        "https://stockfolo.onrender.com/api/v1/user/signup", // Full backend URL
-        { firstName, lastName, email, password },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true, // include cookies if needed
-        }
-      );
+      const response = await api.post("/user/signup", { firstName, lastName, email, password });
+
+      // If backend returns a token, store it
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+      }
 
       setMessageType("success");
       setMessage("Signup successful! Redirecting...");
 
       // Update global user state
-      setUser({ firstName, lastName, email });
+      setUser({ firstName, lastName, email, token: response.data.token || null });
 
       setTimeout(() => navigate("/stock"), 1500);
     } catch (err) {
       console.error(err);
       setMessageType("error");
-
-      // Show backend error message if available
-      if (err.response?.data?.message) {
-        setMessage(err.response.data.message);
-      } else {
-        setMessage("Server error. Please try again.");
-      }
+      setMessage(err.response?.data?.message || "Server error. Please try again.");
     }
   };
 
