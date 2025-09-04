@@ -4,7 +4,7 @@ import axios from "axios";
 
 const Navbar = ({ user, setUser }) => {
   const navigate = useNavigate();
-  const API_URL = "https://stockfolo.onrender.com"; // Directly use deployed backend URL
+  const API_URL = "https://stockfolo.onrender.com"; // Local backend URL
 
   const handleLogout = async () => {
     try {

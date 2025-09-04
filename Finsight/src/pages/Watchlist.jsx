@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import api from "../api";
 
 const Watchlist = () => {
   const [watchlist, setWatchlist] = useState([]);
@@ -11,10 +10,20 @@ const Watchlist = () => {
   // Fetch user watchlist
   const fetchWatchlist = async () => {
     try {
-      const res = await api.get("/watchlist");
-      setWatchlist(res.data.watchlist);
+      const res = await fetch("https://stockfolo.onrender.com/api/v1/watchlist", {
+        method: "GET",
+        credentials: "include", // include cookies if using authentication
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch watchlist");
+
+      const data = await res.json();
+      setWatchlist(data.watchlist || []);
     } catch (err) {
-      console.error("Error fetching watchlist:", err.response?.data || err.message);
+      console.error("Error fetching watchlist:", err.message);
       setError("Failed to fetch watchlist");
     }
   };
@@ -24,14 +33,26 @@ const Watchlist = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     try {
-      const res = await api.post("/watchlist/add", { symbol, name });
-      setWatchlist((prev) => [res.data.data, ...prev]);
+      const res = await fetch("http://localhost:5000/api/v1/watchlist/add", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ symbol, name }),
+      });
+
+      if (!res.ok) throw new Error("Failed to add stock");
+
+      const data = await res.json();
+      setWatchlist((prev) => [data.data, ...prev]);
       setSymbol("");
       setName("");
     } catch (err) {
-      console.error("Error adding stock:", err.response?.data || err.message);
-      setError(err.response?.data?.message || "Failed to add stock");
+      console.error("Error adding stock:", err.message);
+      setError(err.message || "Failed to add stock");
     } finally {
       setLoading(false);
     }
@@ -40,10 +61,16 @@ const Watchlist = () => {
   // Remove stock from watchlist
   const removeStock = async (id) => {
     try {
-      await api.delete(`/watchlist/remove/${id}`);
+      const res = await fetch(`http://localhost:5000/api/v1/watchlist/remove/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error("Failed to remove stock");
+
       setWatchlist((prev) => prev.filter((item) => item._id !== id));
     } catch (err) {
-      console.error("Error removing stock:", err.response?.data || err.message);
+      console.error("Error removing stock:", err.message);
       setError("Failed to remove stock");
     }
   };
@@ -109,11 +136,11 @@ const Watchlist = () => {
         ))}
       </ul>
 
-      {watchlist.length === 0 && <p className="text-gray-400 mt-4">No stocks in watchlist yet.</p>}
+      {watchlist.length === 0 && (
+        <p className="text-gray-400 mt-4">No stocks in watchlist yet.</p>
+      )}
     </div>
   );
 };
 
 export default Watchlist;
-
-

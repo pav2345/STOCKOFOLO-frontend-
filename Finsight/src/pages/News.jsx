@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import NewsImage from "../assets/news.png";
 import {
   PieChart,
   Pie,
@@ -14,11 +13,10 @@ import {
   YAxis,
 } from "recharts";
 import { motion } from "framer-motion";
-import api from "../api"; // Use central API instance
 
 const NewsSVG = () => (
   <svg className="w-40 h-40 text-indigo-400 opacity-10" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>
+    <path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z" />
   </svg>
 );
 
@@ -35,8 +33,14 @@ export default function News() {
     setNewsData([]);
 
     try {
-      const res = await api.get(`/news/${symbol.toUpperCase()}`); // use api.js, token auto-attached
-      const data = res.data;
+      const res = await fetch(`https://stockfolo.onrender.com/api/v1/news/${symbol.toUpperCase()}`, {
+        credentials: "include",
+      });
+      
+      if (res.status === 401) throw new Error("Unauthorized. Please login.");
+      if (!res.ok) throw new Error("Failed to fetch news");
+
+      const data = await res.json();
 
       if (!data.success) {
         setError(data.message || "Failed to fetch news");
@@ -45,7 +49,7 @@ export default function News() {
       }
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || err.message || "Something went wrong. Try again.");
+      setError(err.message || "Something went wrong");
     }
 
     setLoading(false);
@@ -54,9 +58,12 @@ export default function News() {
   const COLORS = ["#22c55e", "#ef4444", "#a1a1aa"];
   const sentimentColor = (sentiment) => {
     switch (sentiment) {
-      case "positive": return "bg-green-500";
-      case "negative": return "bg-red-500";
-      default: return "bg-gray-500";
+      case "positive":
+        return "bg-green-500";
+      case "negative":
+        return "bg-red-500";
+      default:
+        return "bg-gray-500";
     }
   };
 
@@ -79,7 +86,7 @@ export default function News() {
     return Object.entries(grouped).map(([date, count]) => ({ date, count }));
   };
 
-  const sentimentData = getSentimentData(); // calculate once to avoid duplicate calls
+  const sentimentData = getSentimentData();
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 text-white overflow-x-hidden">
@@ -199,3 +206,4 @@ export default function News() {
     </div>
   );
 }
+

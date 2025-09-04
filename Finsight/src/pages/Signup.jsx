@@ -1,7 +1,6 @@
 // src/Signup.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import api from "../api"; // use central API instance
 
 const Signup = ({ setUser }) => {
   const navigate = useNavigate();
@@ -17,24 +16,36 @@ const Signup = ({ setUser }) => {
     const password = e.target.password.value;
 
     try {
-      const response = await api.post("/user/signup", { firstName, lastName, email, password });
+      const response = await fetch("https://stockfolo.onrender.com/api/v1/user/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ firstName, lastName, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Signup failed");
+      }
 
       // If backend returns a token, store it
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
+      if (data.token) {
+        localStorage.setItem("token", data.token);
       }
 
       setMessageType("success");
       setMessage("Signup successful! Redirecting...");
 
       // Update global user state
-      setUser({ firstName, lastName, email, token: response.data.token || null });
+      setUser({ firstName, lastName, email, token: data.token || null });
 
       setTimeout(() => navigate("/stock"), 1500);
     } catch (err) {
       console.error(err);
       setMessageType("error");
-      setMessage(err.response?.data?.message || "Server error. Please try again.");
+      setMessage(err.message || "Server error. Please try again.");
     }
   };
 

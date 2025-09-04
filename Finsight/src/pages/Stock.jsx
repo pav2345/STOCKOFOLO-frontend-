@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import api from "../api"; // Use centralized API instance
+import axios from "axios";
 
 const FinanceSVG1 = () => (
   <svg className="w-32 h-32 sm:w-40 sm:h-40 text-blue-400 opacity-10" fill="currentColor" viewBox="0 0 24 24">
@@ -40,11 +40,11 @@ export default function Stock() {
     setLoading(true);
     try {
       // Fetch stock info
-      const stockRes = await api.get(`/stock/${symbol.toUpperCase()}`);
+      const stockRes = await axios.get(`https://stockfolo.onrender.com/api/v1/stock/${symbol.toUpperCase()}`);
       setStock(stockRes.data);
 
       // Fetch history
-      const historyRes = await api.get(`/stock/${symbol.toUpperCase()}/history`);
+      const historyRes = await axios.get(`https://stockfolo.onrender.com/api/v1/stock/${symbol.toUpperCase()}/history`);
       setHistory(historyRes.data.history || []);
     } catch (err) {
       console.error("Error fetching stock:", err);
